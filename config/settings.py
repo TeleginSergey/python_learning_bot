@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    BOT_TOKEN: str = '7066916393:AAFOAZtmf__xt9Fl-XSM9GpTQvddn98skkI'
+    BOT_TOKEN: str
     # BOT_WEBHOOK_URL: str
 
     DB_HOST: str = 'localhost'
