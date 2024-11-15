@@ -179,6 +179,7 @@ async def send_answer(callback: CallbackQuery, state: FSMContext):
     _, complexity, task_id = callback.data.split(':')
 
     await state.set_state(TaskAnswerState.waiting_for_answer)
+    await state.update_data(message_id=callback.message.message_id)
     await state.update_data(task_id=task_id)
 
     back_kb = InlineKeyboardMarkup(inline_keyboard=[

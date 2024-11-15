@@ -14,6 +14,7 @@ from src.rabbit_initializer import init_rabbitmq
 
 from src.handlers.user_handlers.command.router import router as user_command_start_router
 from src.handlers.user_handlers.callback.router import router as user_callback_router
+from src.handlers.user_handlers.state_handlers.router import router as user_state_router
 from src.handlers.admin_handlers.state_handlers.router import router as admin_state_router
 from src.handlers.admin_handlers.command.router import router as admin_cmd_router
 
@@ -32,6 +33,7 @@ async def start_polling():
     dp.include_router(admin_state_router)
     dp.include_router(user_callback_router)
     dp.include_router(user_command_start_router)
+    dp.include_router(user_state_router)
     await bot.delete_webhook()
     await init_rabbitmq()
 

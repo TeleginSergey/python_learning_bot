@@ -13,4 +13,5 @@ class Task(Base):
     description: Mapped[str]
     input_data: Mapped[str]
     correct_answer: Mapped[str]
+    secret_input: Mapped[str]
     secret_answer: Mapped[str]
