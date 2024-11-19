@@ -1,7 +1,9 @@
 import aio_pika
 import msgpack
+import asyncio
 from aio_pika import ExchangeType
 from aiogram import F
+from aio_pika.exceptions import QueueEmpty
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command
 
@@ -9,6 +11,7 @@ from consumer.schema.task import TaskMessage
 from db.storage.rabbit import channel_pool
 from router import router
 from src.keyboards.user_kb import complex_kb
+from config.settings import  settings
 
 
 @router.message(Command('delete_task'))
@@ -20,7 +23,7 @@ async def delete_task(message: Message):
 async def get_complexity(callback: CallbackQuery):
     complexity = callback.data.split('_')[-1]
     async with channel_pool.acquire() as channel:  # type: aio_pika.Channel
-        exchange = await channel.declare_exchange("user_tasks", ExchangeType.TOPIC, durable=True)
+        exchange = await channel.declare_exchange("admin_tasks", ExchangeType.TOPIC, durable=True)
 
         await exchange.publish(
             aio_pika.Message(
@@ -37,4 +40,17 @@ async def get_complexity(callback: CallbackQuery):
             'user_messages',
         )
 
-        # TODO
+    queue = await channel.declare_queue(
+        'admin_tasks.{admin_id}'.format(admin_id=callback.from_user.id),
+        durable=True,
+    )
+
+    retries = 3
+    for _ in range(retries):
+        try:
+            tasks = await queue.get()
+            parsed_tasks = msgpack.unpackb(tasks.body).get('tasks')
+            if parsed_tasks:
+                break
+        except QueueEmpty:
+            await asyncio.sleep(.02)

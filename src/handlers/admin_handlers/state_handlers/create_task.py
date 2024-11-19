@@ -77,7 +77,6 @@ async def waiting_for_secret_answer(message: Message, state: FSMContext):
                 ),
                 'user_messages',
             )
-            print('Сообщение отправлено')
     except Exception as e:
         await message.answer('Что то пошло не так')
         logging.exception(e)

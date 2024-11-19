@@ -1,3 +1,4 @@
+from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
 from sqlalchemy import Boolean
@@ -22,7 +23,7 @@ async def process_answer(message: Message, state: FSMContext):
     async with async_session() as db:
         task = await db.scalar(select(Task).where(Task.id == task_id))
 
-    result = check_user_task_solution(python_code, task)
+    result = await check_user_task_solution(python_code, task)
 
     await state.clear()
     kb = InlineKeyboardMarkup(inline_keyboard=[
@@ -33,7 +34,10 @@ async def process_answer(message: Message, state: FSMContext):
         await message.answer(result, reply_markup=kb)
     elif result == '':
         await message.answer('пусто', reply_markup=kb)
-
     else:
-        await message.answer(result, reply_markup=InlineKeyboardMarkup(
-            inline_keyboard=[[InlineKeyboardButton(text='Выбрать следующую задачу', callback_data='get_another_task')]]))
+        await message.answer(
+            result,
+            reply_markup=InlineKeyboardMarkup(
+            inline_keyboard=[[InlineKeyboardButton(text='Выбрать следующую задачу', callback_data='get_another_task')]]),
+            parse_mode='HTML'
+        )
